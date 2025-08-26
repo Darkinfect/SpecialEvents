@@ -1,0 +1,16 @@
+name: SpecialEvents
+version: '${project.version}'
+main: me.dark_infect.specialevents.SpecialEvents
+api-version: '1.21'
+softdepend: [ ProtocolLib ]
+
+commands:
+  stev:
+    usage: /stev
+    permission: se.stev
+permissions:
+  se.*:
+    default: op
+    children:
+      se.stev: true
+      se.immune: true
