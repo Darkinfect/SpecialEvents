@@ -100,7 +100,6 @@ public class LookTeleporter {
         location.getWorld().playSound(location, sound, 1.0f, 1.0f);
     }
 
-    // Кулдаун методы
     private final Set<UUID> cooldowns = new HashSet<>();
 
     private boolean isOnCooldown(Player player) {
@@ -108,7 +107,7 @@ public class LookTeleporter {
     }
 
     private int getCooldownRemaining(Player player) {
-        return cooldownSeconds; // Простая реализация
+        return cooldownSeconds;
     }
 
     private void setCooldown(Player player) {
@@ -121,7 +120,6 @@ public class LookTeleporter {
         }.runTaskLater(plugin, cooldownSeconds * 20L);
     }
 
-    // Геттеры и сеттеры
     public int getMaxDistance() { return maxDistance; }
     public void setMaxDistance(int maxDistance) { this.maxDistance = maxDistance; }
 

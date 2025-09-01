@@ -257,18 +257,18 @@ public class FinalFigth {
                     return;
                 }
 
-                // Инициализация при первом запуске
+
                 if (ticks == 1) {
                     initializeRays(startPoint, rayLength);
                 }
 
-                // Двигаем лучи к их конечным точкам
+
                 moveRaysToTarget();
 
-                // Отрисовка лучей
+
                 drawRays();
 
-                // Звуковые эффекты
+
                 if (ticks % 5 == 0) {
                     startPoint.getWorld().playSound(startPoint, Sound.BLOCK_BEACON_AMBIENT, 0.3f, 1.8f);
                 }
@@ -280,7 +280,7 @@ public class FinalFigth {
                 double y = center.getY();
                 double z = center.getZ();
 
-                // 4 диагональных направления
+
                 Vector[] directions = {
                         new Vector(1, -1, 1),    // SE
                         new Vector(1, -1, -1),   // SW
@@ -292,7 +292,7 @@ public class FinalFigth {
                     Vector dir = directions[i].normalize().multiply(length);
                     Location endPoint = center.clone().add(dir);
 
-                    // Находим реальный блок снизу для этой конечной точки
+
                     rayEnds[i] = findGroundBlock(endPoint);
                     currentPoints[i] = center.clone();
                 }
@@ -304,7 +304,7 @@ public class FinalFigth {
                 int y = location.getBlockY();
                 int z = location.getBlockZ();
 
-                // Ищем первый непрозрачный блок снизу
+
                 for (int checkY = y; checkY > world.getMinHeight(); checkY--) {
                     Block block = world.getBlockAt(x, checkY, z);
                     if (block.getType().isSolid() && !block.getType().isTransparent()) {
@@ -312,7 +312,7 @@ public class FinalFigth {
                     }
                 }
 
-                // Если не нашли блок, возвращаем оригинальную точку на земле
+
                 return new Location(world, x + 0.5, world.getMinHeight() + 1, z + 0.5);
             }
 
@@ -321,7 +321,6 @@ public class FinalFigth {
 
                 for (int i = 0; i < 4; i++) {
                     if (rayEnds[i] != null) {
-                        // Интерполяция между начальной и конечной точкой
                         Location newPoint = startPoint.clone().add(
                                 (rayEnds[i].getX() - startPoint.getX()) * progress,
                                 (rayEnds[i].getY() - startPoint.getY()) * progress,
@@ -344,24 +343,21 @@ public class FinalFigth {
                 World world = start.getWorld();
                 Vector direction = end.toVector().subtract(start.toVector());
                 double distance = start.distance(end);
-                int particles = (int) (distance * 5); // Плотность частиц
+                int particles = (int) (distance * 5);
 
-                // Цвета для разных лучей
                 Particle particleType;
                 switch (rayIndex) {
-                    case 0: particleType = Particle.ELECTRIC_SPARK; break; // Красный
-                    case 1: particleType = Particle.ELECTRIC_SPARK; break; // Синий
-                    case 2: particleType = Particle.ELECTRIC_SPARK; break; // Желтый
-                    case 3: particleType = Particle.ELECTRIC_SPARK; break; // Зеленый
+                    case 0: particleType = Particle.ELECTRIC_SPARK; break;
+                    case 1: particleType = Particle.ELECTRIC_SPARK; break;
+                    case 2: particleType = Particle.ELECTRIC_SPARK; break;
+                    case 3: particleType = Particle.ELECTRIC_SPARK; break;
                     default: particleType = Particle.CRIT;
                 }
 
-                // Рисуем луч частицами
                 for (int j = 0; j <= particles; j++) {
                     double ratio = (double) j / particles;
                     Location particleLoc = start.clone().add(direction.clone().multiply(ratio));
 
-                    // Разные эффекты для разных частиц
                     switch (particleType) {
                         case DUST:
                             world.spawnParticle(particleType, particleLoc, 1,
@@ -379,7 +375,6 @@ public class FinalFigth {
                     }
                 }
 
-                // Эффект на конце луча
                 world.spawnParticle(Particle.FLAME, end, 3, 0.1, 0.1, 0.1, 0.05);
                 world.spawnParticle(Particle.SMOKE, end, 2, 0.05, 0.05, 0.05, 0.02);
             }
@@ -387,7 +382,6 @@ public class FinalFigth {
             private void createFinalEffect(Location center, Location[] ends) {
                 World world = center.getWorld();
 
-                // Эффект в конечных точках
                 for (Location end : ends) {
                     if (end != null) {
 
@@ -412,7 +406,6 @@ public class FinalFigth {
                 warden.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION,Integer.MAX_VALUE,1));
                 warden.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE,Integer.MAX_VALUE,3));
 
-                // Центральный эффект
                 world.spawnParticle(Particle.DRAGON_BREATH, center, 20, 0.5, 0.5, 0.5, 0.2);
                 world.playSound(center, Sound.ITEM_TRIDENT_THUNDER, 0.7f, 1.8f);
             }
