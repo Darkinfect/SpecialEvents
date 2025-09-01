@@ -16,6 +16,7 @@ import java.util.logging.Level;
 
 public class Chat {
     private static final List<UUID> DebugChatUsers = new ArrayList<>();
+    private static boolean isOneOnline = false;
     private Chat(){
         throw new IllegalStateException("Utility class");
     }
@@ -34,13 +35,18 @@ public class Chat {
         sender.spigot().sendMessage(mess);
     }
     public static void debugmessage(String message){
-        if(DebugChatUsers.isEmpty()){
+        DebugChatUsers.forEach(uuid->{
+            if(Bukkit.getPlayer(uuid) != null)
+                isOneOnline = true;
+        });
+        if(DebugChatUsers.isEmpty() || !isOneOnline){
             return;
         }
         DebugChatUsers.forEach(sender->{
             Player target = Bukkit.getPlayer(sender);
             sendmessage(target,message);
         });
+        isOneOnline = false;
     }
     public static void  addtodebug(Player player){
         DebugChatUsers.add(player.getUniqueId());
@@ -71,5 +77,8 @@ public class Chat {
         String message;
         message = Color.LIGTH_GREEN + "[MD] " + Color.AQUA + string;
         return message;
+    }
+    public static List<UUID> getDebugChatUsers(){
+        return DebugChatUsers;
     }
 }

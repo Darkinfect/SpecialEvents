@@ -1,8 +1,13 @@
 package me.dark_infect.specialevents.commands;
 
+import me.dark_infect.specialevents.classes.FinalFigth;
+import me.dark_infect.specialevents.classes.Items;
 import me.dark_infect.specialevents.listeners.EndEvent;
+import me.dark_infect.specialevents.listeners.EyeChall;
+import me.dark_infect.specialevents.listeners.tpLook;
 import me.dark_infect.specialevents.utils.Chat;
 import me.dark_infect.specialevents.utils.Color;
+import me.dark_infect.specialevents.utils.plugininit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -10,6 +15,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.*;
+
+import javax.xml.stream.Location;
+import java.util.Objects;
 
 public class stevCMD implements CommandExecutor {
     @Override
@@ -19,7 +27,7 @@ public class stevCMD implements CommandExecutor {
 
         if(strings[0].equalsIgnoreCase("event")){
             if(strings[1].equalsIgnoreCase("setlocation")){
-                EndEvent.SetLocation(player.getLocation());
+                new FinalFigth(player.getLocation(), 15);
                 Chat.sendmessage(player,"Локация была успешно установлена");
                 return true;
             }else if(strings[1].equalsIgnoreCase("start")){
@@ -52,9 +60,33 @@ public class stevCMD implements CommandExecutor {
                     return true;
                 }
                 return true;
+            }else if(strings[1].equalsIgnoreCase("giveeye")){
+                player.getInventory().addItem(Items.GetSpecialEnderEye());
+                Chat.sendmessage(player,"Око было выдано.");
+                return true;
+            }else if(strings[1].equalsIgnoreCase("info")){
+                if(Bukkit.getPlayer(strings[2]) == null){
+                    Chat.sendmessage(player,"Игрок не найден");
+                    return true;
+                }
+                EyeChall.PrintInfo(Bukkit.getPlayer(strings[2]));
+            }else if(strings[1].equalsIgnoreCase("give")){
+                player.getInventory().addItem(tpLook.getStick());
+//                if(Bukkit.getPlayer(strings[2]) == null){
+//                    Chat.sendmessage(player,"Игрок не найден");
+//                    return true;
+//                }
+//                plugininit.getTep().addPlayer(Objects.requireNonNull(Bukkit.getPlayer(strings[2])));
+            }else if(strings[1].equalsIgnoreCase("message")){
+                Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " " + ChatColor.GOLD + "Выполнил испытание и получил Древнее око");
             }
             return true;
         }else if(strings[0].equalsIgnoreCase("debugchat")){
+            if(Chat.getDebugChatUsers().contains(player.getUniqueId())){
+                Chat.getDebugChatUsers().remove(player.getUniqueId());
+                Chat.sendmessage(player,"Debug chat был деактивирован.");
+                return true;
+            }
             Chat.addtodebug(player);
             Chat.sendmessage(player,"Активирован debug чат");
             return true;
@@ -85,4 +117,5 @@ public class stevCMD implements CommandExecutor {
             target.spigot().sendMessage(coords);
         });
     }
+
 }

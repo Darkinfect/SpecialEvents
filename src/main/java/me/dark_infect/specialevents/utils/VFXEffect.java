@@ -80,7 +80,7 @@ public class VFXEffect {
                     return;
                 }
 
-                int points = 30;
+                int points = 120;
                 for (int i = 0; i < points; i++) {
                     double angle = 2 * Math.PI * i / points;
                     double x = radius * Math.cos(angle);
@@ -258,13 +258,12 @@ public class VFXEffect {
     }
 
     private static void spawnParticle(Location location,Color color, List<Player> viewers) {
-        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 4.0f);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.0f);
 
         for (Player viewer : viewers) {
             if (viewer.getWorld().equals(location.getWorld())) {
                 double distanceSquared = viewer.getLocation().distanceSquared(location);
                 if (distanceSquared <= 256 * 256) {
-                    // ПРАВИЛЬНЫЙ способ для Dust particles
                     viewer.spawnParticle(
                             Particle.DUST,
                             location,

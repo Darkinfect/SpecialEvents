@@ -18,7 +18,10 @@ public class stevCompleter implements TabCompleter {
             "stop",
             "setflag",
             "setinfl",
-            "growup"
+            "growup",
+            "info",
+            "giveeye",
+            "give"
     );
     private final List<String> ThirdArgs = List.of(
             "true"
