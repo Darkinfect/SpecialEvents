@@ -55,7 +55,7 @@ public class EyeChall implements Listener {
                 players.forEach(player -> {
                     //ChallengeOne(player);
                     //ChallengeTwo(player);
-                    ChallengeThird(player);
+                   // ChallengeThird(player);
                     //ChallengeFourth(player);
                     //ChallengeFives(player);
                     //ChallengeSix(player);
@@ -229,7 +229,7 @@ public class EyeChall implements Listener {
     }
     @EventHandler
     public void onMovePlayer(PlayerMoveEvent event){
-        assert player != null;
+        if(player == null) return;
         if(player.getUniqueId().equals(event.getPlayer().getUniqueId())){
             if(!canMove){
                 event.setCancelled(true);
