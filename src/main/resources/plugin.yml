@@ -8,6 +8,9 @@ commands:
   stev:
     usage: /stev
     permission: se.stev
+  boss:
+    usage: /boss
+    permission: se.boss
 permissions:
   se.*:
     default: op
@@ -15,3 +18,4 @@ permissions:
       se.stev: true
       se.immune: true
       se.debug: true
+      se.boss: true

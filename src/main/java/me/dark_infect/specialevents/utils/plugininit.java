@@ -48,6 +48,8 @@ public class plugininit {
     private static void registerCommand(){
         plugin.getCommand("stev").setExecutor(new stevCMD());
         plugin.getCommand("stev").setTabCompleter(new stevCompleter());
+        plugin.getCommand("boss").setExecutor(new BossCommand());
+        plugin.getCommand("boss").setTabCompleter(new BossCommand());
     }
     private static void registerEvent(){
         pluginManager.registerEvents(new EndEvent(),plugin);

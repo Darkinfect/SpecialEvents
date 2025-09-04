@@ -35,7 +35,7 @@ public class EyeChall implements Listener {
     private static boolean canMove = true;
     private static int countKilling = 0;
     private static int countKillChast = 0;
-    private static Player player = Bukkit.getPlayer("Dark_infect");
+    private static final Player player = Bukkit.getPlayer("Dark_infect");
     private static final World overworld = SpecialEvents.getInstance().getServer().getWorld("world");
     private static final List<String> targetplayer = List.of(
             "KAKSAD",
@@ -229,6 +229,7 @@ public class EyeChall implements Listener {
     }
     @EventHandler
     public void onMovePlayer(PlayerMoveEvent event){
+        assert player != null;
         if(player.getUniqueId().equals(event.getPlayer().getUniqueId())){
             if(!canMove){
                 event.setCancelled(true);
