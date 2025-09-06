@@ -3,6 +3,7 @@ package me.dark_infect.specialevents.utils;
 
 import me.dark_infect.specialevents.SpecialEvents;
 import me.dark_infect.specialevents.classes.stevCompleter;
+import me.dark_infect.specialevents.commands.BossCommand;
 import me.dark_infect.specialevents.commands.stevCMD;
 import me.dark_infect.specialevents.listeners.EndEvent;
 import me.dark_infect.specialevents.listeners.EyeChall;
@@ -11,8 +12,6 @@ import me.dark_infect.specialevents.listeners.tpLook;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import javax.swing.*;
 
 public class plugininit {
     private static SpecialEvents plugin = SpecialEvents.getInstance();

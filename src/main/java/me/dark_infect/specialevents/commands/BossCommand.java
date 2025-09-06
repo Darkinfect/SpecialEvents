@@ -1,5 +1,6 @@
-package me.dark_infect.specialevents.classes;
+package me.dark_infect.specialevents.commands;
 
+import me.dark_infect.specialevents.classes.BossAbilityManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,7 +13,7 @@ import java.util.*;
 
 public class BossCommand implements CommandExecutor, TabCompleter {
 
-    private final Map<UUID, BossAbilityManager> bossPlayers = new HashMap<>();
+    private static final Map<UUID, BossAbilityManager> bossPlayers = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -50,11 +51,24 @@ public class BossCommand implements CommandExecutor, TabCompleter {
             case "trap":
                 useTrapAbility(player);
                 break;
+            case "ball":
+                onUseFireball(player);
+                break;
             default:
                 player.sendMessage("§cНеизвестная команда! Используйте /boss");
         }
 
         return true;
+    }
+    public void onUseFireball(Player player){
+        BossAbilityManager manager = bossPlayers.get(player.getUniqueId());
+        if(manager != null){
+            if(manager.executeAbility("ball")){
+                player.sendMessage("Fireball был заспавнен");
+            }else{
+                player.sendMessage("Способность на перезарядке");
+            }
+        }
     }
 
     private void toggleBossMode(Player player) {
@@ -107,16 +121,16 @@ public class BossCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("toggle", "dash", "cloud", "trap");
+            return Arrays.asList("toggle", "dash", "cloud", "trap", "ball");
         }
         return Collections.emptyList();
     }
 
-    public boolean isBoss(Player player) {
+    public static boolean isBoss(Player player) {
         return bossPlayers.containsKey(player.getUniqueId());
     }
 
-    public BossAbilityManager getBossManager(Player player) {
+    public static BossAbilityManager getBossManager(Player player) {
         return bossPlayers.get(player.getUniqueId());
     }
 }

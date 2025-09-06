@@ -20,6 +20,7 @@ public class Inflection {
     private static final World world = Bukkit.getWorld("world");
     private int radius = 10;
     private final Set<Material> immuneBlocks = new HashSet<>(Arrays.asList(
+            Material.CRYING_OBSIDIAN,
             Material.AIR,
             Material.CHEST,
             Material.BEDROCK,
@@ -55,7 +56,7 @@ public class Inflection {
             Block block = newInfection.getBlock();
             World world = block.getWorld();
 
-            if (hasAirNearby(block) && !immuneBlocks.contains(block.getType())) {
+            if (hasAirNearby(block) && !immuneBlocks.contains(block.getType()) && isCanGrewUp(block)) {
                 this.infectBlock(newInfection);
             }
         }
@@ -116,5 +117,13 @@ public class Inflection {
     }
     public Location getCenter() {
         return center;
+    }
+    private boolean isCanGrewUp(Block block){
+        return immuneBlocks.contains(block.getRelative(1,0,0).getType())  ||
+                immuneBlocks.contains(block.getRelative(-1,0,0).getType())  ||
+                immuneBlocks.contains(block.getRelative(0,1,0).getType()) ||
+                immuneBlocks.contains(block.getRelative(0,-1,0).getType()) ||
+                immuneBlocks.contains(block.getRelative(0,0,1).getType()) ||
+                immuneBlocks.contains(block.getRelative(0,0,-1).getType());
     }
 }

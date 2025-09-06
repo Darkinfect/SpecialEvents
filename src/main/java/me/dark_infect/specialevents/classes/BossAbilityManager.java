@@ -178,6 +178,12 @@ public class BossAbilityManager {
                 }
             }.runTaskTimer(SpecialEvents.getInstance(), 0L, 1L);
         }
+        public boolean OnCreateBall(){
+            Location location = boss.getLocation();
+            Fireball fireball = location.getWorld().spawn(location,  Fireball.class);
+            fireball.setDirection(boss.getLocation().getDirection());
+            return true;
+        }
 
         private void createParticleLine(Location start, Location end, Particle particle) {
             Vector direction = end.toVector().subtract(start.toVector());
