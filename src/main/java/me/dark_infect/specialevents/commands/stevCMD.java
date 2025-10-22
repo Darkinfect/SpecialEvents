@@ -7,7 +7,6 @@ import me.dark_infect.specialevents.listeners.EyeChall;
 import me.dark_infect.specialevents.listeners.tpLook;
 import me.dark_infect.specialevents.utils.Chat;
 import me.dark_infect.specialevents.utils.Color;
-import me.dark_infect.specialevents.utils.plugininit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -15,9 +14,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.*;
-
-import javax.xml.stream.Location;
-import java.util.Objects;
 
 public class stevCMD implements CommandExecutor {
     @Override

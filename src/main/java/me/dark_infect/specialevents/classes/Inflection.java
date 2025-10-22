@@ -1,6 +1,10 @@
 package me.dark_infect.specialevents.classes;
 
 
+
+
+
+import me.dark_infect.specialevents.utils.Chat;
 import org.bukkit.Color;
 import me.dark_infect.specialevents.utils.VFXEffect;
 import org.bukkit.*;
@@ -55,8 +59,13 @@ public class Inflection {
             Location newInfection = source.clone().add(dx, dy, dz);
             Block block = newInfection.getBlock();
             World world = block.getWorld();
+            Chat.debugmessage(String.valueOf(inflectedblocks.size()));
 
-            if (hasAirNearby(block) && !immuneBlocks.contains(block.getType()) && isCanGrewUp(block)) {
+            if(!isCanGrewUp(source.getBlock())){
+                inflectedblocks.remove(source);
+                continue;
+            }
+            if (hasAirNearby(block) && !immuneBlocks.contains(block.getType())) {
                 this.infectBlock(newInfection);
             }
         }

@@ -10,7 +10,6 @@ import me.dark_infect.specialevents.SpecialEvents;
 public final class ProtocolLibHook {
     public static void register(){
         ProtocolManager manager = ProtocolLibrary.getProtocolManager();
-
         manager.addPacketListener(new PacketAdapter(SpecialEvents.getInstance(), ListenerPriority.MONITOR, PacketType.Play.Server.CHAT){
 
         });

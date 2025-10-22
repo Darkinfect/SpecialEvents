@@ -2,17 +2,13 @@ package me.dark_infect.specialevents.listeners;
 
 import me.dark_infect.specialevents.SpecialEvents;
 import me.dark_infect.specialevents.classes.FinalFigth;
-import me.dark_infect.specialevents.classes.InvulnerabilityManager;
 import me.dark_infect.specialevents.classes.Items;
 import me.dark_infect.specialevents.utils.Chat;
-import me.dark_infect.specialevents.utils.plugininit;
+import me.dark_infect.specialevents.utils.Plugininit;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Warden;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -20,11 +16,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.io.BukkitObjectInputStream;
 
-import java.lang.module.FindException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +28,7 @@ public class EyeChall implements Listener {
     private static boolean canMove = true;
     private static int countKilling = 0;
     private static int countKillChast = 0;
-    private static final Player player = Bukkit.getPlayer("Dark_infect");
+    private static final Player player = Bukkit.getPlayer("Kronos");
     private static final World overworld = SpecialEvents.getInstance().getServer().getWorld("world");
     private static final List<String> targetplayer = List.of(
             "KAKSAD",
@@ -222,7 +215,7 @@ public class EyeChall implements Listener {
                 }
             }.runTaskTimer(SpecialEvents.getInstance(),0L,20 * 3);
             FinalFigth.getInstance().createBeamBetweenPoints(FinalFigth.getInstance().getCenter(),player.getLocation());
-            plugininit.getInstanceInvManager().makeInvulnerable(player,120,"Падший бог");
+            Plugininit.getInstanceInvManager().makeInvulnerable(player,120,"Падший бог");
             FinalFigth.AddEffects(player);
             canMove = false;
         }

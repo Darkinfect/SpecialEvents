@@ -2,6 +2,9 @@ package me.dark_infect.specialevents.utils;
 
 
 import me.dark_infect.specialevents.SpecialEvents;
+import me.dark_infect.specialevents.classes.FishModifer.ContainerManager;
+import me.dark_infect.specialevents.classes.FishModifer.FishingDataManager;
+import me.dark_infect.specialevents.classes.FishModifer.LootGenerator;
 import me.dark_infect.specialevents.classes.stevCompleter;
 import me.dark_infect.specialevents.commands.BossCommand;
 import me.dark_infect.specialevents.commands.stevCMD;
@@ -13,11 +16,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class plugininit {
+import java.util.Objects;
+
+import static java.lang.System.err;
+
+public class Plugininit {
     private static SpecialEvents plugin = SpecialEvents.getInstance();
     private static PluginManager pluginManager = plugin.getInstance().getServer().getPluginManager();
     private static LookTeleporter tep = new LookTeleporter(plugin,100,3,true,true);
     private static InvulnerabilityManager instance;
+    private static FishingDataManager dataManager;
+    private static LootGenerator lootGenerator;
+    private static ContainerManager containerManager;
 
     public static InvulnerabilityManager getInstanceInvManager(){
         return instance;
@@ -27,28 +37,28 @@ public class plugininit {
         return tep;
     }
 
-    public static boolean init(){
+    public static void init(){
         boolean start = true;
         try{
             instance = new InvulnerabilityManager(plugin);
+            dataManager = new FishingDataManager(plugin);
+            lootGenerator = new LootGenerator(plugin);
+            containerManager = new ContainerManager();
             Checker();
             Items.GenerateItems();
             EyeChall.CheckerF();
             addToDebug();
             registerCommand();
-            tpLook.genstick();
             registerEvent();
         }catch (Exception e){
-            e.printStackTrace();
-            return false;
+            e.printStackTrace(err);
         }
-        return start;
     }
     private static void registerCommand(){
-        plugin.getCommand("stev").setExecutor(new stevCMD());
-        plugin.getCommand("stev").setTabCompleter(new stevCompleter());
-        plugin.getCommand("boss").setExecutor(new BossCommand());
-        plugin.getCommand("boss").setTabCompleter(new BossCommand());
+        Objects.requireNonNull(plugin.getCommand("stev")).setExecutor(new stevCMD());
+        Objects.requireNonNull(plugin.getCommand("stev")).setTabCompleter(new stevCompleter());
+        Objects.requireNonNull(plugin.getCommand("boss")).setExecutor(new BossCommand());
+        Objects.requireNonNull(plugin.getCommand("boss")).setTabCompleter(new BossCommand());
     }
     private static void registerEvent(){
         pluginManager.registerEvents(new EndEvent(),plugin);
@@ -73,5 +83,16 @@ public class plugininit {
         Bukkit.getOnlinePlayers().forEach(player -> {
             if(player.hasPermission("se.debug")) Chat.addtodebug(player);
         });
+    }
+    public static FishingDataManager getDataManager() {
+        return dataManager;
+    }
+
+    public static LootGenerator getLootGenerator() {
+        return lootGenerator;
+    }
+
+    public static ContainerManager getContainerManager() {
+        return containerManager;
     }
 }

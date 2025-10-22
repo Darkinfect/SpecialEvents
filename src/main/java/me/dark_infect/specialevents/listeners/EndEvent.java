@@ -25,9 +25,8 @@ public class EndEvent implements Listener {
     private static Location cureGlassLocation;
     private static boolean isCured = false;
     private static final Random random = new Random();
-    private static long timer = 20 * 60 * 60 * 4;
+    private static long timer = 20 * 60 * 30;
     private static boolean isMessage = true;
-
 
     public static void setTimer(long timer) {
         EndEvent.timer = timer;
@@ -208,7 +207,7 @@ public class EndEvent implements Listener {
 //            return;
 //        }
 //    }
-    @EventHandler
+/*    @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (isCured) return;
@@ -238,5 +237,5 @@ public class EndEvent implements Listener {
                 break;
             }
         }
-    }
+    }*/
 }
