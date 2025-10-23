@@ -48,7 +48,7 @@ public class Chat {
         });
         isOneOnline = false;
     }
-    public static void  addtodebug(Player player){
+    public static void addtodebug(Player player){
         DebugChatUsers.add(player.getUniqueId());
     }
     public static void sendPluginMessage(Player player,String message){

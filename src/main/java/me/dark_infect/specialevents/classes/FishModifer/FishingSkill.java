@@ -1,25 +1,26 @@
 package me.dark_infect.specialevents.classes.FishModifer;
 
+import me.dark_infect.specialevents.SpecialEvents;
+import me.dark_infect.specialevents.utils.Plugininit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public enum FishingSkill {
-    NOVICE(0, "Новичок", 0, 0, ChatColor.GRAY),
-    APPRENTICE(100, "Подмастерье", 5, 5, ChatColor.GREEN),
-    EXPERT(500, "Эксперт", 15, 10, ChatColor.BLUE),
-    MASTER(2000, "Мастер", 30, 15, ChatColor.LIGHT_PURPLE),
-    LEGEND(5000, "Легенда", 50, 20, ChatColor.GOLD);
+    NOVICE(0, "Новичок", 0, ChatColor.GRAY),
+    APPRENTICE(100, "Подмастерье", 5, ChatColor.GREEN),
+    EXPERT(500, "Эксперт", 10, ChatColor.BLUE),
+    MASTER(2000, "Мастер", 15, ChatColor.LIGHT_PURPLE),
+    LEGEND(5000, "Легенда", 20, ChatColor.GOLD);
 
     private final int requiredCatches;
     private final String displayName;
-    private final int luckBonus;
     private final int extraReactionTicks;
     private final ChatColor color;
 
-    FishingSkill(int requiredCatches, String displayName, int luckBonus,
+    FishingSkill(int requiredCatches, String displayName,
                  int extraReactionTicks, ChatColor color) {
         this.requiredCatches = requiredCatches;
         this.displayName = displayName;
-        this.luckBonus = luckBonus;
         this.extraReactionTicks = extraReactionTicks;
         this.color = color;
     }
@@ -32,8 +33,13 @@ public enum FishingSkill {
         return displayName;
     }
 
+    // Бонус удачи теперь берётся из конфига
     public int getLuckBonus() {
-        return luckBonus;
+        JavaPlugin plugin = SpecialEvents.getInstance();
+        if (plugin == null) return 0;
+
+        String configPath = "bonus-chances.skill." + this.name().toLowerCase();
+        return plugin.getConfig().getInt(configPath, 0);
     }
 
     public int getExtraReactionTicks() {

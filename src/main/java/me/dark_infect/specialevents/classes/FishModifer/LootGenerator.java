@@ -6,6 +6,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,41 +25,108 @@ public class LootGenerator {
                                       boolean openWater, Biome biome, boolean isNight) {
         double bonusChance = 0;
 
+        // Получаем множитель из конфига
+        double globalMultiplier = plugin.getConfig().getDouble("bonus-chances.global-multiplier", 1.0);
+
         // Бонус за реакцию
-        if (reactionTicks <= 10) bonusChance += 30;      // < 0.5 сек
-        else if (reactionTicks <= 14) bonusChance += 20; // < 0.7 сек
-        else if (reactionTicks <= 20) bonusChance += 10; // < 1 сек
+        if (reactionTicks <= 10) { // < 0.5 сек
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.perfect", 15);
+        } else if (reactionTicks <= 14) { // < 0.7 сек
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.great", 10);
+        } else if (reactionTicks <= 20) { // < 1 сек
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.good", 5);
+        }
 
         // Бонусы условий
-        if (openWater) bonusChance += 15;
-        if (isNight) bonusChance += 10;
-        if (isPremiumBiome(biome)) bonusChance += 10;
+        if (openWater) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.open-water", 8);
+        }
+
+        if (isNight) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.night-time", 5);
+        }
+
+        // Проверка биома на null перед использованием
+        if (biome != null && isPremiumBiome(biome)) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.premium-biome", 5);
+        }
+
+        // Бонус за дождь
+        if (player.getWorld().hasStorm()) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.rain", 3);
+        }
 
         // Бонус навыка
         FishingSkill skill = Plugininit.getDataManager().getSkillLevel(player);
-        bonusChance += skill.getLuckBonus();
+        bonusChance += getSkillBonus(skill);
 
         // Бонус цепочки
         int streak = Plugininit.getDataManager().getCurrentStreak(player);
-        if (streak >= 10) bonusChance += 50; // Гарантия редкого
-        else if (streak >= 5) bonusChance += 20;
+        bonusChance += getStreakBonus(streak);
 
         // Зачарование "Удача моря"
         ItemStack rod = player.getInventory().getItemInMainHand();
-        if (rod.getType() == Material.FISHING_ROD) {
+        if (rod != null && rod.getType() == Material.FISHING_ROD) {
             int luckLevel = rod.getEnchantmentLevel(Enchantment.LUCK_OF_THE_SEA);
-            bonusChance += luckLevel * 5;
+            double luckBonus = plugin.getConfig().getDouble(
+                    "bonus-chances.luck-of-the-sea.per-level", 3);
+            bonusChance += luckLevel * luckBonus;
         }
+
+        // Применяем глобальный множитель
+        bonusChance *= globalMultiplier;
 
         // Рассчёт финальной редкости
         double roll = ThreadLocalRandom.current().nextDouble(100);
         double adjustedRoll = roll - bonusChance;
+
+        // Логирование для отладки
+        if (plugin.getConfig().getBoolean("debug", false)) {
+            plugin.getLogger().info(String.format(
+                    "[DEBUG] Player: %s | Roll: %.2f | Bonus: %.2f | Adjusted: %.2f",
+                    player.getName(), roll, bonusChance, adjustedRoll
+            ));
+        }
 
         if (adjustedRoll < 1) return RarityTier.LEGENDARY;
         if (adjustedRoll < 5) return RarityTier.EPIC;
         if (adjustedRoll < 15) return RarityTier.RARE;
         if (adjustedRoll < 40) return RarityTier.UNCOMMON;
         return RarityTier.COMMON;
+    }
+
+    // Новый метод для получения бонуса от навыка
+    private double getSkillBonus(FishingSkill skill) {
+        String configPath = "bonus-chances.skill.";
+
+        switch (skill) {
+            case NOVICE:
+                return plugin.getConfig().getDouble(configPath + "novice", 0);
+            case APPRENTICE:
+                return plugin.getConfig().getDouble(configPath + "apprentice", 3);
+            case EXPERT:
+                return plugin.getConfig().getDouble(configPath + "expert", 8);
+            case MASTER:
+                return plugin.getConfig().getDouble(configPath + "master", 15);
+            case LEGEND:
+                return plugin.getConfig().getDouble(configPath + "legend", 25);
+            default:
+                return 0;
+        }
+    }
+
+    // Новый метод для получения бонуса от цепочки
+    private double getStreakBonus(int streak) {
+        if (streak >= 20) {
+            return plugin.getConfig().getDouble("bonus-chances.streak.tier4", 35);
+        } else if (streak >= 10) {
+            return plugin.getConfig().getDouble("bonus-chances.streak.tier3", 20);
+        } else if (streak >= 5) {
+            return plugin.getConfig().getDouble("bonus-chances.streak.tier2", 10);
+        } else if (streak >= 3) {
+            return plugin.getConfig().getDouble("bonus-chances.streak.tier1", 5);
+        }
+        return 0;
     }
 
     public ItemStack generateLoot(Player player, RarityTier tier, Biome biome) {
@@ -69,10 +137,12 @@ public class LootGenerator {
             }
         }
 
-        // Специальный лут биома
-        ItemStack biomeLoot = getBiomeLoot(biome, tier);
-        if (biomeLoot != null) {
-            return biomeLoot;
+        // Специальный лут биома (только если биом не null)
+        if (biome != null) {
+            ItemStack biomeLoot = getBiomeLoot(biome, tier);
+            if (biomeLoot != null) {
+                return biomeLoot;
+            }
         }
 
         // Стандартный лут по категориям
@@ -88,7 +158,9 @@ public class LootGenerator {
             return generateTreasure(tier);
         }
     }
-
+    public ItemStack generateTestLoot(Player player, RarityTier tier) {
+        return generateLoot(player, tier, null);
+    }
     private ItemStack generateFish(RarityTier tier) {
         Material[] commonFish = {Material.COD, Material.SALMON,
                 Material.TROPICAL_FISH, Material.PUFFERFISH};
@@ -144,12 +216,14 @@ public class LootGenerator {
 
         ItemStack item = new ItemStack(resource, amount);
         ItemMeta meta = item.getItemMeta();
-        meta.setLore(Arrays.asList(
-                "§7Редкость: " + tier.getFormattedName(),
-                "§7Выловлено из водных глубин"
-        ));
-        ItemStack fish = new ItemStack(Material.TROPICAL_FISH);
-        fish.setItemMeta(meta);
+
+        if (meta != null) {
+            meta.setLore(Arrays.asList(
+                    "§7Редкость: " + tier.getFormattedName(),
+                    "§7Выловлено из водных глубин"
+            ));
+            item.setItemMeta(meta);
+        }
 
         return item;
     }
@@ -206,6 +280,11 @@ public class LootGenerator {
     }
 
     private ItemStack getBiomeLoot(Biome biome, RarityTier tier) {
+        // ВАЖНО: Проверка на null
+        if (biome == null) {
+            return null;
+        }
+
         switch (biome) {
             case WARM_OCEAN:
             case LUKEWARM_OCEAN:
@@ -235,14 +314,21 @@ public class LootGenerator {
                             ThreadLocalRandom.current().nextInt(4, 9));
                 }
                 return new ItemStack(Material.LILY_PAD, tier.ordinal() + 3);
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     private boolean isPremiumBiome(Biome biome) {
-        return biome == Biome.WARM_OCEAN || biome == Biome.DEEP_OCEAN ||
-                biome == Biome.MUSHROOM_FIELDS || biome == Biome.FROZEN_OCEAN;
+        if (biome == null) {
+            return false;
+        }
+
+        return biome == Biome.WARM_OCEAN ||
+                biome == Biome.DEEP_OCEAN ||
+                biome == Biome.MUSHROOM_FIELDS ||
+                biome == Biome.FROZEN_OCEAN;
     }
 
     private Enchantment[] getEnchantmentsForItem(Material type) {
@@ -261,6 +347,76 @@ public class LootGenerator {
                     Enchantment.PROTECTION, Enchantment.UNBREAKING,
                     Enchantment.THORNS, Enchantment.MENDING
             };
+        }
+    }
+    public double calculateTotalChance(Player player, int reactionTicks,
+                                       boolean openWater, String biomeName, boolean isNight) {
+        double bonusChance = 0;
+        double globalMultiplier = plugin.getConfig().getDouble("bonus-chances.global-multiplier", 1.0);
+
+        // Бонус за реакцию
+        if (reactionTicks <= 10) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.perfect", 15);
+        } else if (reactionTicks <= 14) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.great", 10);
+        } else if (reactionTicks <= 20) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.reaction.good", 5);
+        }
+
+        // Бонусы условий
+        if (openWater) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.open-water", 8);
+        }
+
+        if (isNight) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.night-time", 5);
+        }
+
+        if (player.getWorld().hasStorm()) {
+            bonusChance += plugin.getConfig().getDouble("bonus-chances.conditions.rain", 3);
+        }
+
+        // Проверка биома на null
+        if (biomeName != null && !biomeName.isEmpty()) {
+            try {
+                Biome biome = Biome.valueOf(biomeName);
+                if (isPremiumBiome(biome)) {
+                    bonusChance += plugin.getConfig().getDouble(
+                            "bonus-chances.conditions.premium-biome", 5);
+                }
+            } catch (IllegalArgumentException e) {
+                // Неизвестный биом - игнорируем
+            }
+        }
+
+        // Бонус навыка
+        FishingSkill skill = Plugininit.getDataManager().getSkillLevel(player);
+        bonusChance += getSkillBonus(skill);
+
+        // Бонус цепочки
+        int streak = Plugininit.getDataManager().getCurrentStreak(player);
+        bonusChance += getStreakBonus(streak);
+
+        // Зачарование
+        ItemStack rod = player.getInventory().getItemInMainHand();
+        if (rod != null && rod.getType() == Material.FISHING_ROD) {
+            int luckLevel = rod.getEnchantmentLevel(Enchantment.LUCK_OF_THE_SEA);
+            double luckBonus = plugin.getConfig().getDouble(
+                    "bonus-chances.luck-of-the-sea.per-level", 3);
+            bonusChance += luckLevel * luckBonus;
+        }
+
+        // Применяем глобальный множитель
+        bonusChance *= globalMultiplier;
+
+        return 100.0 + bonusChance;
+    }
+    private boolean isPremiumBiome(String biomeName) {
+        try {
+            Biome biome = Biome.valueOf(biomeName);
+            return isPremiumBiome(biome);
+        } catch (Exception e) {
+            return false;
         }
     }
 

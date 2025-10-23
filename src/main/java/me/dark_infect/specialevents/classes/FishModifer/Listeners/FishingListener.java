@@ -1,14 +1,20 @@
 package me.dark_infect.specialevents.classes.FishModifer.Listeners;
 
+import me.dark_infect.specialevents.SpecialEvents;
 import me.dark_infect.specialevents.classes.FishModifer.FishingAttempt;
 import me.dark_infect.specialevents.classes.FishModifer.FishingSkill;
 import me.dark_infect.specialevents.classes.FishModifer.RarityTier;
+import me.dark_infect.specialevents.utils.Chat;
 import me.dark_infect.specialevents.utils.Plugininit;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.Biome;
+import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,9 +49,9 @@ public class FishingListener implements Listener {
             case FISHING:
                 handleFishingStart(player, hook);
                 break;
-            /*case FISH_BITE:
+            case BITE:
                 handleFishBite(event, player, hook);
-                break;*/
+                break;
             case CAUGHT_FISH:
                 handleCatch(event, player, hook);
                 break;
@@ -178,7 +184,60 @@ public class FishingListener implements Listener {
             Bukkit.broadcastMessage(tier.getColorCode() + "§l⚡ " +
                     player.getName() + " поймал ЛЕГЕНДАРНУЮ добычу!");
         }
+        String biomeName = hook.getLocation().getBlock().getBiome().name();
+
+// Логирование улова
+        Plugininit.getFishingLogger().logCatch(
+                player,
+                tier,
+                loot.getItemMeta() != null ? loot.getItemMeta().getDisplayName() : "Unknown",
+                reactionTicks,
+                Plugininit.getLootGenerator().calculateTotalChance(
+                        player, reactionTicks, openWater, biomeName, isNight),
+                openWater,
+                biomeName
+        );
     }
+    private double calculateTotalChance(Player player, int reactionTicks,
+                                        boolean openWater, Biome biome, boolean isNight) {
+        double bonusChance = 0;
+
+        // Бонус за реакцию
+        if (reactionTicks <= 10) bonusChance += 30;      // < 0.5 сек
+        else if (reactionTicks <= 14) bonusChance += 20; // < 0.7 сек
+        else if (reactionTicks <= 20) bonusChance += 10; // < 1 сек
+
+        // Бонусы условий
+        if (openWater) bonusChance += 15;
+        if (isNight) bonusChance += 10;
+        if (isPremiumBiome(biome)) bonusChance += 10;
+
+        // Бонус навыка
+        FishingSkill skill = Plugininit.getDataManager().getSkillLevel(player);
+        bonusChance += skill.getLuckBonus();
+
+        // Бонус цепочки
+        int streak = Plugininit.getDataManager().getCurrentStreak(player);
+        if (streak >= 10) bonusChance += 50;
+        else if (streak >= 5) bonusChance += 20;
+
+        // Зачарование "Удача моря"
+        ItemStack rod = player.getInventory().getItemInMainHand();
+        if (rod.getType() == Material.FISHING_ROD) {
+            int luckLevel = rod.getEnchantmentLevel(Enchantment.LUCK_OF_THE_SEA);
+            bonusChance += luckLevel * 5;
+        }
+
+        return bonusChance;
+    }
+
+    private boolean isPremiumBiome(Biome biome) {
+        return biome == Biome.WARM_OCEAN ||
+                biome == Biome.DEEP_OCEAN ||
+                biome == Biome.MUSHROOM_FIELDS ||
+                biome == Biome.FROZEN_OCEAN;
+    }
+
 
     private void handleFailedCatch(Player player, FishingAttempt attempt) {
         Plugininit.getDataManager().updateStreak(player, false);

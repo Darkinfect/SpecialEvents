@@ -1,0 +1,77 @@
+# Настройки интерактивной рыбалки
+
+fishing:
+  # Время ожидания поклёвки (в тиках, 20 тиков = 1 секунда)
+  min-wait-time: 60    # 3 секунды
+  max-wait-time: 200   # 10 секунд
+
+  # Базовое окно реакции (в тиках)
+  base-reaction-window: 20  # 1 секунда
+
+  # Время сброса цепочки (миллисекунды)
+  streak-reset-time: 10000  # 10 секунд
+
+  # Множители шанса редкости
+  reaction-bonus:
+    perfect: 30    # < 0.5 сек
+    great: 20      # < 0.7 сек
+    good: 10       # < 1 сек
+
+  condition-bonus:
+    open-water: 15
+    night-time: 10
+    premium-biome: 10
+
+  streak-bonus:
+    mega: 50       # 10+ серия
+    super: 20      # 5+ серия
+
+# Настройки контейнеров
+containers:
+  cooldown: 500    # Кулдаун открытия (мс)
+
+# Настройки опыта
+experience:
+  base-multiplier: 2
+  reaction-bonus:
+    fast: 3
+    medium: 2
+    slow: 1
+
+# Настройки лута
+loot:
+  fish:
+    chance: 40.0
+  resources:
+    chance: 30.0
+  equipment:
+    chance: 20.0
+  treasure:
+    chance: 10.0
+
+  biome-specific: true
+  container-chance: 10
+  amount-multiplier: 1.0
+
+# Настройки редкостей
+rarity:
+  common:
+    base-chance: 60.0
+    items-in-container: 3
+  uncommon:
+    base-chance: 25.0
+    items-in-container: 5
+  rare:
+    base-chance: 10.0
+    items-in-container: 7
+  epic:
+    base-chance: 4.0
+    items-in-container: 9
+  legendary:
+    base-chance: 1.0
+    items-in-container: 12
+# Сообщения
+messages:
+  prefix: "§b[Рыбалка]§r"
+  level-up: "§6§lПОВЫШЕНИЕ!"
+  legendary-broadcast: "§6§l⚡ {player} поймал ЛЕГЕНДАРНУЮ добычу!"

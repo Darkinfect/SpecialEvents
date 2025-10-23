@@ -1,6 +1,8 @@
 package me.dark_infect.specialevents.classes.FishModifer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -111,5 +113,80 @@ public class FishingDataManager {
     public void saveAllData() {
         streakCache.clear();
         lastCatchTime.clear();
+    }
+    public int getTotalCatches(OfflinePlayer player) {
+        if (player.getPlayer() != null) {
+            return getTotalCatches(player.getPlayer());
+        }
+
+        // Для оффлайн игроков загружаем данные из player.dat
+        return loadOfflineData(player, totalCatchesKey);
+    }
+
+    public int getSuccessfulCatches(OfflinePlayer player) {
+        if (player.getPlayer() != null) {
+            return getSuccessfulCatches(player.getPlayer());
+        }
+        return loadOfflineData(player, successfulCatchesKey);
+    }
+
+    public int getBestStreak(OfflinePlayer player) {
+        if (player.getPlayer() != null) {
+            return getBestStreak(player.getPlayer());
+        }
+        return loadOfflineData(player, bestStreakKey);
+    }
+
+    public int getLegendaryCount(OfflinePlayer player) {
+        if (player.getPlayer() != null) {
+            return getLegendaryCount(player.getPlayer());
+        }
+        return loadOfflineData(player, legendaryCountKey);
+    }
+
+    public double getSuccessRate(OfflinePlayer player) {
+        int total = getTotalCatches(player);
+        if (total == 0) return 0.0;
+        return (double) getSuccessfulCatches(player) / total * 100;
+    }
+
+    public FishingSkill getSkillLevel(OfflinePlayer player) {
+        int catches = getSuccessfulCatches(player);
+        return FishingSkill.getByProgress(catches);
+    }
+
+    private int loadOfflineData(OfflinePlayer player, NamespacedKey key) {
+        try {
+            // Попытка загрузить данные из player.dat файла
+            // Это работает только если игрок хотя бы раз заходил на сервер
+            Player onlinePlayer = player.getPlayer();
+            if (onlinePlayer != null) {
+                return onlinePlayer.getPersistentDataContainer()
+                        .getOrDefault(key, PersistentDataType.INTEGER, 0);
+            }
+            return 0;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Не удалось загрузить данные для " +
+                    player.getName() + ": " + e.getMessage());
+            return 0;
+        }
+    }
+
+    public void resetPlayerStats(OfflinePlayer player) {
+        Player onlinePlayer = player.getPlayer();
+        if (onlinePlayer != null) {
+            PersistentDataContainer data = onlinePlayer.getPersistentDataContainer();
+            data.remove(totalCatchesKey);
+            data.remove(successfulCatchesKey);
+            data.remove(bestStreakKey);
+            data.remove(legendaryCountKey);
+        }
+    }
+
+    public void resetAllStats() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            resetPlayerStats(player);
+        }
+        plugin.getLogger().info("Статистика всех игроков сброшена!");
     }
 }

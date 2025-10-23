@@ -11,6 +11,14 @@ commands:
   boss:
     usage: /boss
     permission: se.boss
+  fishing:
+    description: Fishing statistics and info
+    usage: /fishing [stats|top|help]
+  fishadmin:
+    description: Open admin panel
+    usage: /fishadmin
+    aliases: [ fadmin, fishingadmin ]
+    permission: fishing.admin
 permissions:
   se.*:
     default: op
@@ -19,3 +27,9 @@ permissions:
       se.immune: true
       se.debug: true
       se.boss: true
+  fishing.use:
+    description: Allows using the fishing system
+    default: true
+  fishing.admin:
+    description: Access admin panel
+    default: op

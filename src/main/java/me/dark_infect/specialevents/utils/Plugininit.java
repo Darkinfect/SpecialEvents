@@ -4,9 +4,16 @@ package me.dark_infect.specialevents.utils;
 import me.dark_infect.specialevents.SpecialEvents;
 import me.dark_infect.specialevents.classes.FishModifer.ContainerManager;
 import me.dark_infect.specialevents.classes.FishModifer.FishingDataManager;
+import me.dark_infect.specialevents.classes.FishModifer.FishingLogger;
+import me.dark_infect.specialevents.classes.FishModifer.GUI.AdminPanelGUI;
+import me.dark_infect.specialevents.classes.FishModifer.GUI.GUIListener;
+import me.dark_infect.specialevents.classes.FishModifer.Listeners.ContainerListener;
+import me.dark_infect.specialevents.classes.FishModifer.Listeners.FishingListener;
 import me.dark_infect.specialevents.classes.FishModifer.LootGenerator;
 import me.dark_infect.specialevents.classes.stevCompleter;
+import me.dark_infect.specialevents.commands.AdminCommand;
 import me.dark_infect.specialevents.commands.BossCommand;
+import me.dark_infect.specialevents.commands.FishingCommand;
 import me.dark_infect.specialevents.commands.stevCMD;
 import me.dark_infect.specialevents.listeners.EndEvent;
 import me.dark_infect.specialevents.listeners.EyeChall;
@@ -15,6 +22,7 @@ import me.dark_infect.specialevents.listeners.tpLook;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.Objects;
 
@@ -28,6 +36,8 @@ public class Plugininit {
     private static FishingDataManager dataManager;
     private static LootGenerator lootGenerator;
     private static ContainerManager containerManager;
+    private static FishingLogger fishingLogger;
+    private static AdminPanelGUI adminPanelGUI;
 
     public static InvulnerabilityManager getInstanceInvManager(){
         return instance;
@@ -43,7 +53,9 @@ public class Plugininit {
             instance = new InvulnerabilityManager(plugin);
             dataManager = new FishingDataManager(plugin);
             lootGenerator = new LootGenerator(plugin);
+            fishingLogger = new FishingLogger(plugin);
             containerManager = new ContainerManager();
+            adminPanelGUI = new AdminPanelGUI(plugin);
             Checker();
             Items.GenerateItems();
             EyeChall.CheckerF();
@@ -59,11 +71,16 @@ public class Plugininit {
         Objects.requireNonNull(plugin.getCommand("stev")).setTabCompleter(new stevCompleter());
         Objects.requireNonNull(plugin.getCommand("boss")).setExecutor(new BossCommand());
         Objects.requireNonNull(plugin.getCommand("boss")).setTabCompleter(new BossCommand());
+        Objects.requireNonNull(plugin.getCommand("fishing")).setExecutor(new FishingCommand());
+        Objects.requireNonNull(plugin.getCommand("fishadmin")).setExecutor(new AdminCommand(plugin));
     }
     private static void registerEvent(){
-        pluginManager.registerEvents(new EndEvent(),plugin);
-        pluginManager.registerEvents(new EyeChall(), plugin);
-        pluginManager.registerEvents(new tpLook(),plugin);
+        //pluginManager.registerEvents(new EndEvent(),plugin);
+        //pluginManager.registerEvents(new EyeChall(), plugin);
+       // pluginManager.registerEvents(new tpLook(),plugin);
+        pluginManager.registerEvents(new FishingListener(plugin),plugin);
+        pluginManager.registerEvents(new ContainerListener(),plugin);
+        pluginManager.registerEvents(new GUIListener(plugin),plugin);
     }
     public static void Checker(){
         new BukkitRunnable(){
@@ -94,5 +111,8 @@ public class Plugininit {
 
     public static ContainerManager getContainerManager() {
         return containerManager;
+    }
+    public static FishingLogger getFishingLogger() {
+        return fishingLogger;
     }
 }
